@@ -29,6 +29,13 @@ exports.exportMessagesToSqliteFile = function(messageData, sqliteDbFilename, mes
 
 };
 
+/**
+ * @param db {Connection object} Database connection.
+ * @param data {message[]} Messages
+ * @param messagesTableName {string} name of the table where data will be written
+ * 
+ * Inserts messages to database pooled by poolSize.
+ */
 function bulkInsert(db, data, messagesTableName, poolSize) {
     var n = Math.floor(data.length / poolSize);
     var bar = new ProgressBar('[sqlite] writing table [:bar] :percent :etas', {
@@ -44,7 +51,11 @@ function bulkInsert(db, data, messagesTableName, poolSize) {
         bar.tick();
     }
 }
-
+/**
+ * Generates the insert command and the data to be escaped for it from
+ * provided message array.
+ * @eturns command and data to run from the messages passed.
+ */
 function buildPoolInsert(messages, messagesTableName) {
     var oneInsert = '(' +
         Object.keys(utils.messageSqLiteType)
