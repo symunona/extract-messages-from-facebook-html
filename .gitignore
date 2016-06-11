@@ -6,6 +6,7 @@ stat.sqlite
 tmp
 *_zip
 *.sqlite
+*.raw.json
 stats*.json
 stats.json
 statlist.json

@@ -1,5 +1,5 @@
 {
-    "name": "extract-messages-from-facebook-html",
+    "name": "facebook-extract-message-history",
     "version": "1.0.0",
     "description": "Creates a number of outputs of the messages from an exported facebook archive file",
     "main": "app.js",
@@ -19,5 +19,8 @@
         "mysql": "^2.10.2",
         "progress": "^1.1.8",
         "sql.js": "git+https://github.com/kripken/sql.js.git"
+    },
+    "bin": {
+        "facebook-extract-message-history": "./app.js"
     }
 }

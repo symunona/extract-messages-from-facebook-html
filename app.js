@@ -1,3 +1,5 @@
+#!/usr/bin / env node
+
 var fs = require("fs");
 var utils = require('./zip-utils');
 var help = fs.readFileSync('./readme.md', 'utf8');

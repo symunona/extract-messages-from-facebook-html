@@ -97,7 +97,7 @@ exports.getMessagesFromThread = function(thread, parsingMetaData) {
 
         var messageEntry = exports.parseRawMessage(messagesRaw[mi], parsingMetaData);
 
-        messageEntry.isPrivate = (recipiants.length <= 2) ? 1 : 0;
+        messageEntry.isPrivate = (recipiants.length <= 2);
 
         // /* This is for later */
         // messageEntry.outward = (messageEntry.frmuser == parsingMetaData.name);W

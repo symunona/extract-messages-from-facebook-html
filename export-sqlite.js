@@ -66,6 +66,7 @@ function buildPoolInsert(messages, messagesTableName) {
     for (var i = 0; i < messages.length; i++) {
         inserts.push(oneInsert);
     }
+    /* Parameters has to be one flat array, collect them like that */
     var flatPart = [];
     for (var p = 0; p < messages.length; p++) {
         for (var key in utils.messageSqLiteType) {
