@@ -13,8 +13,8 @@ if (process.argv.indexOf('--help') > -1 || process.argv.length < 4) {
 }
 
 var zipfileNameToParse = process.argv[2];
-var outputFilename = process.argv[2];
 var userName = utils.getUserNameFromZipFileName(zipfileNameToParse);
+var outputFilename = userName + '.raw';
 
 /* Check if user specified output file name. */
 if (process.argv.indexOf('-o') > -1) {

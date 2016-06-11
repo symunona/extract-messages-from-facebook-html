@@ -14,12 +14,27 @@ exports.createTable = function(tableName, columns) {
 
 exports.messageSqlType = {
     id: 'INT',
-    fromUserid: 'INT',
-    fromUsername: 'VARCHAR(40)',
-    toUserid: 'INT',
-    toUsername: 'VARCHAR(40)',
+    messageId: 'INT',
+    fromUserId: 'INT',
+    fromUserName: 'VARCHAR(40)',
+    toUserId: 'INT',
+    toUserName: 'VARCHAR(40)',
     sendDate: 'DATETIME',
     isPrivate: 'INT(1)',
+    message: 'TEXT',
+    length: 'INT',
+};
+
+
+exports.messageSqLiteType = {
+    id: 'INT',
+    messageId: 'INT',
+    fromUserId: 'INT',
+    fromUserName: 'TEXT',
+    toUserId: 'INT',
+    toUserName: 'TEXT',
+    sendDate: 'DATETIME',
+    isPrivate: 'INT',
     message: 'TEXT',
     length: 'INT',
 };

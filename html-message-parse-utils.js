@@ -13,6 +13,7 @@ exports.parse = function(messagesRaw, lang) {
         lang: lang,
         userIndex: 1,
         messageIndex: 1,
+        messageIdIndex: 1,
         userMap: {}
     };
 
@@ -96,7 +97,7 @@ exports.getMessagesFromThread = function(thread, parsingMetaData) {
 
         var messageEntry = exports.parseRawMessage(messagesRaw[mi], parsingMetaData);
 
-        messageEntry.priv = (recipiants.length <= 2);
+        messageEntry.isPrivate = (recipiants.length <= 2) ? 1 : 0;
 
         // /* This is for later */
         // messageEntry.outward = (messageEntry.frmuser == parsingMetaData.name);W
@@ -105,9 +106,11 @@ exports.getMessagesFromThread = function(thread, parsingMetaData) {
         for (var iToUser = 0; iToUser < recipiants.length; iToUser++) {
 
             /* Filter out the one sending the message */
-            if ((recipiants[iToUser]) != messageEntry.frmuser) {
-                /* Keep everything, but change it to group */
+            if (exports.getUserIdFromName(recipiants[iToUser], parsingMetaData) != messageEntry.fromUserId) {
+
+                /* Keep everything, but change the recipiant and the unique id */
                 var cpy = extend({
+                    id: parsingMetaData.messageIdIndex++,
                     toUserName: recipiants[iToUser],
                     toUserId: exports.getUserIdFromName(recipiants[iToUser], parsingMetaData)
                 }, messageEntry);
@@ -129,7 +132,7 @@ exports.getMessagesFromThread = function(thread, parsingMetaData) {
  *  
  * @returns the following JS strucuture:
  * {
- *      id: the message ID generated from parsingMetaData, increased 
+ *      messageId: the message ID generated from parsingMetaData, increased 
  *      fromUserId: the sender user's ID determined from parsingMetaData. 
  *                  if not present, creates new entry
  *      fromUserName: the sender's user name
@@ -148,7 +151,7 @@ exports.parseRawMessage = function(rawMessage, parsingMetaData) {
     var messageIndex = parsingMetaData.messageIndex++;
 
     return {
-        id: messageIndex,
+        messageId: messageIndex,
         fromUserId: userId,
         fromUserName: userName,
         message: message,

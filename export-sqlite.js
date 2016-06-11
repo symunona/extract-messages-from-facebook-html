@@ -16,30 +16,12 @@ exports.exportMessagesToSqliteFile = function(messageData, sqliteDbFilename, mes
     var db = new SQL.Database();
     console.log("[sqlite] exporting...");
 
-    var createTableCommand = utils.createTable(messagesTableName, utils.messageSqlType);
+    var createTableCommand = utils.createTable(messagesTableName, utils.messageSqLiteType);
     db.exec(createTableCommand);
 
-    var insertCommand = "INSERT INTO " + messagesTableName + " VALUES (" + Object.keys(utils.messageSqlType)
-        .map(function() {
-            return '?';
-        }).join(',') + ')';
-
-    var bar = new ProgressBar('[sqlite] writing table [:bar] :percent :etas', {
-        total: messageData.length,
-        width: 60
-    });
-    bulkInsert(db, messageData, messagesTableName, 3);
-
-    // for (var i = 0; i < messageData.length; i++) {
-    //     var data = [];
-    //     for (var k in utils.messageSqlType) {
-    //         data.push(messageData[i][k]);
-    //     }
-    //     db.run(insertCommand, data);
-    //     bar.tick();
-    // }
-
     console.log("[sqlite] writing out...");
+    bulkInsert(db, messageData, messagesTableName, 80);
+
     var exp = db.export();
     var buffer = new Buffer(exp);
     fs.writeFileSync(sqliteDbFilename, buffer);
@@ -49,28 +31,43 @@ exports.exportMessagesToSqliteFile = function(messageData, sqliteDbFilename, mes
 
 function bulkInsert(db, data, messagesTableName, poolSize) {
     var n = Math.floor(data.length / poolSize);
+    var bar = new ProgressBar('[sqlite] writing table [:bar] :percent :etas', {
+        total: n,
+        width: 60
+    });
+
     for (var i = 0; i < n; i++) {
         var part = data.slice(i * poolSize, (i == n) ? data.length : (i + 1) * poolSize);
         var insertCommand = buildPoolInsert(part, messagesTableName);
-        console.log(insertCommand)
-        db.run(insertCommand, part);
+
+        db.run(insertCommand.command, insertCommand.data);
+        bar.tick();
     }
 }
 
 function buildPoolInsert(messages, messagesTableName) {
     var oneInsert = '(' +
-        Object.keys(utils.messageSqlType)
+        Object.keys(utils.messageSqLiteType)
         .map(function() {
             return '?';
         }).join(',') + ')';
-    var inserts = []
+    var inserts = [];
     for (var i = 0; i < messages.length; i++) {
         inserts.push(oneInsert);
     }
-    var insertString = '(' + inserts.join(',') + ')';
+    var flatPart = [];
+    for (var p = 0; p < messages.length; p++) {
+        for (var key in utils.messageSqLiteType) {
+            flatPart.push(messages[p][key]);
+        }
+    }
+    var insertString = inserts.join(',');
     var insertCommand = 'INSERT INTO ' + messagesTableName + ' VALUES ' + insertString;
 
-    return insertCommand;
+    return {
+        command: insertCommand,
+        data: flatPart
+    };
 }
 
 exports.loadFromDb = function(filename) {
