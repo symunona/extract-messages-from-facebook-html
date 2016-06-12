@@ -15,6 +15,7 @@ exports.createTable = function(tableName, columns) {
 exports.messageSqlType = {
     id: 'INT',
     messageId: 'INT',
+    threadId: 'INT',
     fromUserId: 'INT',
     fromUserName: 'VARCHAR(40)',
     toUserId: 'INT',
@@ -29,6 +30,7 @@ exports.messageSqlType = {
 exports.messageSqLiteType = {
     id: 'INT',
     messageId: 'INT',
+    threadId: 'INT',
     fromUserId: 'INT',
     fromUserName: 'TEXT',
     toUserId: 'INT',

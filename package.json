@@ -1,6 +1,6 @@
 {
     "name": "facebook-extract-message-history",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "Creates a number of outputs of the messages from an exported facebook archive file",
     "main": "app.js",
     "scripts": {
@@ -22,5 +22,14 @@
     },
     "bin": {
         "facebook-extract-message-history": "./app.js"
-    }
+    },
+    "devDependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/symunona/extract-messages-from-facebook-html.git"
+    },
+    "bugs": {
+        "url": "https://github.com/symunona/extract-messages-from-facebook-html/issues"
+    },
+    "homepage": "https://github.com/symunona/extract-messages-from-facebook-html#readme"
 }

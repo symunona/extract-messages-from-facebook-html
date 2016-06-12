@@ -6,9 +6,6 @@ var help = fs.readFileSync('./readme.md', 'utf8');
 var sqliteUtils = require('./export-sqlite');
 var mysqlUtils = require('./export-mysql');
 
-console.log(process.argv);
-
-
 if (process.argv.indexOf('--help') > -1 || process.argv.length < 4) {
     console.log(help);
     process.exit();

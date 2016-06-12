@@ -10,11 +10,18 @@ var momentParseFormat = require('moment-parseformat');
 exports.parse = function(messagesRaw, lang) {
 
     var parsingMetaData = {
+        /* The language code parsed from settings */
         lang: lang,
         userIndex: 1,
         messageIndex: 1,
         messageIdIndex: 1,
-        userMap: {}
+        threadIdIndex: 1,
+        /* userName: userId */
+        userMap: {},
+        /* userName: tread recipiant count */
+        userCounts: {},
+        /* threadId: usernames[] */
+        threadRecipiants: {}
     };
 
     console.log('[parse] Finding threads...');
@@ -81,16 +88,37 @@ exports.getThreads = function(msg) {
 exports.getMessagesFromThread = function(thread, parsingMetaData) {
 
     /* Assuming the thread starts with the list and 
-       ends with a new tag and the names are separated by commas */
-    var recipiants = thread.substring(0, thread.indexOf('<'))
+       ends with a new tag and the names are separated by commas 
+       
+       Here we also want to count which users are in all threads
+       to get a list of the likely names of the parsed user.
+       
+       This is necessary, because we do not have ID's of users
+       so we can not simply determine if the user has changed
+       it's name in the database file. The ones with the most 
+       count are likely to be the user's own names.
+       
+       We also export the threadId's so later when we analize 
+       the thread recipiants, we can make assumptions, that one 
+       of the thread recipiants is always the user, this way we
+       can automate changed username recognitions. 
+       */
+    var threadId = parsingMetaData.threadIdIndex++;
+    var recipiants = parsingMetaData.threadRecipiants[threadId] =
+        thread.substring(0, thread.indexOf('<'))
         .split(',')
         .map(function(e) {
-            return e.trim();
+            var userName = e.trim();
+            if (!parsingMetaData.userCounts[userName])
+                parsingMetaData.userCounts[userName] = 0;
+            parsingMetaData.userCounts[userName]++;
+            return userName;
         });
 
     /* Get the messages out splitted by the message class tag */
     var messagesRaw = thread.substring(thread.indexOf('<')).split('<div class="message">');
     var messages = [];
+
 
     /* Start from 1 because the first will be an empty string. */
     for (var mi = 1; mi < messagesRaw.length; mi++) {
@@ -98,6 +126,7 @@ exports.getMessagesFromThread = function(thread, parsingMetaData) {
         var messageEntry = exports.parseRawMessage(messagesRaw[mi], parsingMetaData);
 
         messageEntry.isPrivate = (recipiants.length <= 2);
+        messageEntry.threadId = threadId;
 
         // /* This is for later */
         // messageEntry.outward = (messageEntry.frmuser == parsingMetaData.name);W
