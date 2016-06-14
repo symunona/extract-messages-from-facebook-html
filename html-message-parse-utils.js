@@ -18,6 +18,7 @@ exports.parse = function(messagesRaw, lang) {
         threadIdIndex: 1,
         /* userName: userId */
         userMap: {},
+        userIdMap: {},
         /* userName: tread recipiant count */
         userCounts: {},
         /* threadId: usernames[] */
@@ -220,7 +221,9 @@ exports.getUserIdFromName = function(userName, parsingMetaData) {
 
     if (!userId) {
         userId = parsingMetaData.userMap[userName] = parsingMetaData.userIndex++;
+        parsingMetaData.userIdMap[userId] = userName;
     }
+
     return userId;
 };
 
