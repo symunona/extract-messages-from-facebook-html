@@ -22,7 +22,8 @@ exports.parse = function(messagesRaw, lang) {
         /* userName: tread recipiant count */
         userCounts: {},
         /* threadId: usernames[] */
-        threadRecipiants: {}
+        threadRecipiants: {},
+        userName: exports.getNameFromRawMessages(messagesRaw)
     };
 
     console.log('[parse] Finding threads...');
