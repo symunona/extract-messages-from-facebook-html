@@ -1,5 +1,6 @@
 var AdmZip = require('adm-zip');
 var extend = require('util')._extend;
+var path = require('path');
 var parserUtils = require('./html-message-parse-utils');
 
 /**
@@ -21,7 +22,7 @@ exports.parseAsync = function(inputFileName, progress) {
 
     var messagesRaw = exports.getMessagesRawFromZip(inputFileName);
     var lang = exports.getLanguageOfFacebookArchiveZip(inputFileName);
-    
+
     return parserUtils.parsePromise(messagesRaw, lang, progress);
 };
 
@@ -100,5 +101,6 @@ exports.getLanguageOfFacebookArchiveZip = function(zipFileName) {
  * @returns username
  */
 exports.getUserNameFromZipFileName = function(zipFileName) {
-    return zipFileName.substr(9, zipFileName.length - 4 - 9);
+    var filename = path.basename(zipFileName);
+    return filename.substr(9, filename.length - 4 - 9);
 };
