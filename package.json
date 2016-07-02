@@ -1,35 +1,37 @@
 {
-    "name": "facebook-extract-message-history",
-    "version": "0.0.1",
-    "description": "Creates a number of outputs of the messages from an exported facebook archive file",
-    "main": "app.js",
-    "scripts": {
-        "test": "test.js"
-    },
-    "keywords": [
-        "facebook",
-        "html",
-        "parser",
-        "sql"
-    ],
-    "author": "Bendeguy",
-    "license": "ISC",
-    "dependencies": {
-        "adm-zip": "^0.4.7",
-        "mysql": "^2.10.2",
-        "progress": "^1.1.8",
-        "sql.js": "git+https://github.com/kripken/sql.js.git"
-    },
-    "bin": {
-        "facebook-extract-message-history": "./app.js"
-    },
-    "devDependencies": {},
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/symunona/extract-messages-from-facebook-html.git"
-    },
-    "bugs": {
-        "url": "https://github.com/symunona/extract-messages-from-facebook-html/issues"
-    },
-    "homepage": "https://github.com/symunona/extract-messages-from-facebook-html#readme"
+  "name": "facebook-extract-message-history",
+  "version": "0.0.1",
+  "description": "Creates a number of outputs of the messages from an exported facebook archive file",
+  "main": "app.js",
+  "scripts": {
+    "test": "test.js"
+  },
+  "keywords": [
+    "facebook",
+    "html",
+    "parser",
+    "sql"
+  ],
+  "author": "Bendeguy",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "moment-parseformat": "^2.1.1",
+    "mysql": "^2.10.2",
+    "progress": "^1.1.8",
+    "promise": "^7.1.1",
+    "sql.js": "git+https://github.com/kripken/sql.js.git"
+  },
+  "bin": {
+    "facebook-extract-message-history": "./app.js"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/symunona/extract-messages-from-facebook-html.git"
+  },
+  "bugs": {
+    "url": "https://github.com/symunona/extract-messages-from-facebook-html/issues"
+  },
+  "homepage": "https://github.com/symunona/extract-messages-from-facebook-html#readme"
 }

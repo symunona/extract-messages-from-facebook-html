@@ -2,16 +2,12 @@ var ProgressBar = require('progress');
 var extend = require('util')._extend;
 var moment = require('moment');
 var momentParseFormat = require('moment-parseformat');
+var Promise = require('promise');
 
-/**
- * Parses messages.htm into javascript format.
- * @returns the array of messages and metadata extracted.
- */
-exports.parse = function(messagesRaw, lang) {
-
-    var parsingMetaData = {
+var defaultParsingMetaData = function() {
+    return {
         /* The language code parsed from settings */
-        lang: lang,
+        lang: '',
         userIndex: 1,
         messageIndex: 1,
         messageIdIndex: 1,
@@ -23,8 +19,19 @@ exports.parse = function(messagesRaw, lang) {
         userCounts: {},
         /* threadId: usernames[] */
         threadRecipiants: {},
-        userName: exports.getNameFromRawMessages(messagesRaw)
+        userName: ''
     };
+}
+
+/**
+ * Parses messages.htm into javascript format.
+ * @returns the array of messages and metadata extracted.
+ */
+exports.parse = function(messagesRaw, lang, progress) {
+
+    var parsingMetaData = defaultParsingMetaData();
+    parsingMetaData.lang = lang;
+    parsingMetaData.userName = exports.getNameFromRawMessages(messagesRaw);
 
     console.log('[parse] Finding threads...');
 
@@ -36,11 +43,13 @@ exports.parse = function(messagesRaw, lang) {
         total: threads.length,
         width: 60
     });
+    if (progress) progress.total(threads.length);
 
     /* Iterate over the threads found. */
     for (var t = 0; t < threads.length; t++) {
         messages = messages.concat(exports.getMessagesFromThread(threads[t], parsingMetaData));
         bar.tick();
+        progress.tick();
     }
 
     return {
@@ -48,6 +57,51 @@ exports.parse = function(messagesRaw, lang) {
         parsingMetaData: parsingMetaData
     };
 };
+
+
+/**
+ * Parser regulary releasing the main thread in order to 
+ * refresh the UI for NWJS. 
+ * child_process.fork still does not work, see:
+ * https://github.com/nwjs/nw.js/issues/213
+ * 
+ * @returns {Promise} which will get resolved with the messages.
+ */
+
+exports.parsePromise = function(messagesRaw, lang, progress) {
+
+    return new Promise(function(resolve, reject) {
+        var parsingMetaData = defaultParsingMetaData();
+        parsingMetaData.lang = lang;
+        parsingMetaData.userName = exports.getNameFromRawMessages(messagesRaw);
+
+        console.log('[parse] Finding threads...');
+
+        var threads = exports.getThreads(messagesRaw);
+
+        if (progress) progress.total(threads.length);
+        var messages = [];
+
+        processNextMessage(0, threads, messages);
+
+        function processNextMessage(t, threads, messages) {
+            if (t < threads.length) {
+                messages = messages.concat(exports.getMessagesFromThread(threads[t], parsingMetaData));
+                if (progress) progress.tick();
+
+                setTimeout(processNextMessage.bind(this, t + 1, threads, messages));
+            } else {
+                resolve({
+                    messages: messages,
+                    parsingMetaData: parsingMetaData
+                });
+            }
+        }
+    });
+};
+
+
+
 
 /**
  * Gets the actual user name from the H1 tag at the top
