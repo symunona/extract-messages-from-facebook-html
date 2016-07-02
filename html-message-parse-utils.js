@@ -28,14 +28,16 @@ exports.parse = function(messagesRaw, lang) {
 
     console.log('[parse] Finding threads...');
 
+
     var threads = exports.getThreads(messagesRaw);
+    var messages = [];
 
     var bar = new ProgressBar('Parsing threads [:bar] :percent :etas', {
         total: threads.length,
         width: 60
     });
-    var messages = [];
 
+    /* Iterate over the threads found. */
     for (var t = 0; t < threads.length; t++) {
         messages = messages.concat(exports.getMessagesFromThread(threads[t], parsingMetaData));
         bar.tick();
@@ -201,10 +203,17 @@ exports.parseLocaleFormattedDate = function(dateString, parsingMetaData) {
     /* Extract the date format if it has not been determined yet. */
     if (!parsingMetaData.dateFormat) {
         moment.locale(parsingMetaData.lang);
-        parsingMetaData.dateFormat = momentParseFormat(dateString);
+        if (parsingMetaData.lang == 'en_US') {
+            parsingMetaData.dateFormat = 'dddd, MMMM DD, YYYY [at] h:mma [UTC]ZZ';
+        } else {
+            parsingMetaData.dateFormat = momentParseFormat(dateString);
+        }
+
         // console.log('Date format from: ', dateString);
-        // console.log('Found date format (' + parsingMetaData.lang + '): ', exports.dateFormat);
+        // console.log('Found date format (' + parsingMetaData.lang + '): ', parsingMetaData.dateFormat);
     }
+    // console.log(dateString, ' -> ', moment(dateString, parsingMetaData.dateFormat, parsingMetaData.lang).format());
+
     return moment(dateString, parsingMetaData.dateFormat, parsingMetaData.lang).format();
 };
 
