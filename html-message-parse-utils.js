@@ -23,7 +23,7 @@ var defaultParsingMetaData = function() {
         threadRecipiants: {},
         userName: ''
     };
-}
+};
 
 /**
  * Parses messages.htm into javascript format.

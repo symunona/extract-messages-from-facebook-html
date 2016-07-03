@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "adm-zip": "^0.4.7",
+    "moment": "^2.13.0",
     "moment-parseformat": "^2.1.1",
     "mysql": "^2.10.2",
     "progress": "^1.1.8",
