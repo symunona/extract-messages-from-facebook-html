@@ -9,19 +9,20 @@ var parserUtils = require('./html-message-parse-utils');
  * @returns the messages and metadata.
  */
 
-exports.parse = function(inputFileName, progress) {
+exports.parse = function(inputFileName, lang, progress) {
 
     var messagesRaw = exports.getMessagesRawFromZip(inputFileName);
-    var lang = exports.getLanguageOfFacebookArchiveZip(inputFileName);
+
+    // var lang = exports.getLanguageOfFacebookArchiveZip(inputFileName); // does not work anymore
     var messageData = parserUtils.parse(messagesRaw, lang, progress);
 
     return messageData;
 };
 
-exports.parseAsync = function(inputFileName, progress) {
+exports.parseAsync = function(inputFileName, lang, progress) {
 
     var messagesRaw = exports.getMessagesRawFromZip(inputFileName);
-    var lang = exports.getLanguageOfFacebookArchiveZip(inputFileName);
+    // var lang = exports.getLanguageOfFacebookArchiveZip(inputFileName); // does not work anymore
 
     return parserUtils.parsePromise(messagesRaw, lang, progress);
 };
@@ -41,15 +42,20 @@ exports.isFacebookArchiveZip = function(fileName) {
         zipEntries.forEach(function(zipEntry) {
             if (zipEntry.entryName == "index.htm") {
                 filesNeededFound++;
+                console.log('found index.htm')
             }
             if (zipEntry.entryName == "html/messages.htm") {
                 filesNeededFound++;
+                console.log('found messages.htm')
             }
+            /* // They just removed this, what is sad, because I 
+               // was using it for extracting locale
             if (zipEntry.entryName == "html/settings.htm") {
                 filesNeededFound++;
-            }
+                console.log('found settings.htm')
+            }*/
         });
-        if (filesNeededFound > 2) {
+        if (filesNeededFound > 1) {
             return true;
         }
     }
@@ -90,8 +96,11 @@ exports.getLanguageOfFacebookArchiveZip = function(zipFileName) {
 
     var settingsRaw = exports.getStringFromZipEntryByName(zipFileName, "html/settings.htm");
 
+    var lang = '';
+    if (settingsRaw)
     /* This assumes that the language is in the second TD element */
-    var lang = settingsRaw.match(/<td>(.*?)<\/td>/)[1];
+        lang = settingsRaw.match(/<td>(.*?)<\/td>/)[1];
+
 
     return lang;
 };

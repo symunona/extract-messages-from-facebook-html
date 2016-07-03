@@ -3,11 +3,13 @@ var extend = require('util')._extend;
 var moment = require('moment');
 var momentParseFormat = require('moment-parseformat');
 var Promise = require('promise');
+var fs = require('fs');
+
 
 var defaultParsingMetaData = function() {
     return {
         /* The language code parsed from settings */
-        lang: '',
+        lang: {},
         userIndex: 1,
         messageIndex: 1,
         messageIdIndex: 1,
@@ -30,7 +32,12 @@ var defaultParsingMetaData = function() {
 exports.parse = function(messagesRaw, lang, progress) {
 
     var parsingMetaData = defaultParsingMetaData();
+
+    /* Find the language among the list */
     parsingMetaData.lang = lang;
+
+    moment.locale(parsingMetaData.lang.key);
+
     parsingMetaData.userName = exports.getNameFromRawMessages(messagesRaw);
 
     console.log('[parse] Finding threads...');
@@ -49,7 +56,7 @@ exports.parse = function(messagesRaw, lang, progress) {
     for (var t = 0; t < threads.length; t++) {
         messages = messages.concat(exports.getMessagesFromThread(threads[t], parsingMetaData));
         bar.tick();
-        progress.tick();
+        if (progress) progress.tick();
     }
 
     return {
@@ -73,6 +80,9 @@ exports.parsePromise = function(messagesRaw, lang, progress) {
     return new Promise(function(resolve, reject) {
         var parsingMetaData = defaultParsingMetaData();
         parsingMetaData.lang = lang;
+
+        moment.locale(parsingMetaData.lang.key);
+
         parsingMetaData.userName = exports.getNameFromRawMessages(messagesRaw);
 
         console.log('[parse] Finding threads...');
@@ -82,7 +92,12 @@ exports.parsePromise = function(messagesRaw, lang, progress) {
         if (progress) progress.total(threads.length);
         var messages = [];
 
-        processNextMessage(0, threads, messages);
+        try {
+            processNextMessage(0, threads, messages);
+        } catch (e) {
+            reject(e);
+        }
+
 
         function processNextMessage(t, threads, messages) {
             if (t < threads.length) {
@@ -254,22 +269,39 @@ exports.parseRawMessage = function(rawMessage, parsingMetaData) {
 
 exports.parseLocaleFormattedDate = function(dateString, parsingMetaData) {
 
-    /* Extract the date format if it has not been determined yet. */
-    if (!parsingMetaData.dateFormat) {
-        moment.locale(parsingMetaData.lang);
-        if (parsingMetaData.lang == 'en_US') {
-            parsingMetaData.dateFormat = 'dddd, MMMM DD, YYYY [at] h:mma [UTC]ZZ';
-        } else {
-            parsingMetaData.dateFormat = momentParseFormat(dateString);
-        }
+    var parsed = moment(dateString, parsingMetaData.lang.dateformat,
+        parsingMetaData.lang.key);
 
-        // console.log('Date format from: ', dateString);
-        // console.log('Found date format (' + parsingMetaData.lang + '): ', parsingMetaData.dateFormat);
+    if (!parsed.isValid()) {
+        throw new Error('Date format not good! Try modifying it! uDate being parsed: ' +
+            dateString + ' format string: ', parsingMetaData.lang.key);
     }
-    // console.log(dateString, ' -> ', moment(dateString, parsingMetaData.dateFormat, parsingMetaData.lang).format());
 
-    return moment(dateString, parsingMetaData.dateFormat, parsingMetaData.lang).format();
+    return moment(dateString, parsingMetaData.lang.dateformat, parsingMetaData.lang.key).format();
 };
+
+// exports.parseLocaleFormattedDate = function(dateString, parsingMetaData) {
+
+//     /* Extract the date format if it has not been determined yet. */
+//     if (!parsingMetaData.dateFormat) {
+//         moment.locale(parsingMetaData.lang);
+//         var languageData = languages.find(function(e) {
+//             return e.key == parsingMetaData.lang;
+//         });
+//         if (languageData) {
+//             parsingMetaData.dateFormat = parsingMetaData.lang.dateformat;
+//         } else {
+//             parsingMetaData.dateFormat = momentParseFormat(dateString);
+//         }
+//         console.log('Date format from: ', dateString);
+//         console.log('Found date format (' + parsingMetaData.lang + '): ', parsingMetaData.dateFormat);
+//     }
+
+
+//     // console.log(dateString, ' -> ', moment(dateString, parsingMetaData.dateFormat, parsingMetaData.lang).format());
+
+//     return moment(dateString, parsingMetaData.dateFormat, parsingMetaData.lang).format();
+// };
 
 /**
  * @returns a userId from parsingMetaData.userMap. 

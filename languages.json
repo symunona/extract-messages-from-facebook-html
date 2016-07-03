@@ -1,0 +1,9 @@
+[{
+    "key": "en_US",
+    "name": "English (United States)",
+    "dateformat": "dddd, MMMM DD, YYYY [at] h:mma [UTC]ZZ"
+}, {
+    "key": "hu_HU",
+    "name": "Hungarian",
+    "dateformat": "YYYY. MMMM DD., hh:mm [UTC]ZZ"
+}]
